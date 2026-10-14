@@ -1,0 +1,566 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#111827" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Flip 7" />
+  <link rel="manifest" href="manifest.webmanifest" />
+  <link rel="apple-touch-icon" href="icons/icon-180.png" />
+  <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png" />
+  <title>Flip 7 Scorekeeper</title>
+  <style>
+    :root{
+      --bg:#0f172a;
+      --panel:#111827;
+      --card:#1f2937;
+      --card-2:#243244;
+      --text:#f8fafc;
+      --muted:#94a3b8;
+      --border:#334155;
+      --accent:#22c55e;
+      --accent-dark:#16a34a;
+      --danger:#ef4444;
+      --warn:#f59e0b;
+      --shadow:0 8px 24px rgba(0,0,0,.22);
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+      background:linear-gradient(180deg,#0b1220,#111827);
+      color:var(--text);
+      min-height:100vh;
+    }
+    button,input{font:inherit}
+    button{cursor:pointer}
+    .app{
+      width:min(760px,100%);
+      margin:0 auto;
+      padding:20px 16px 40px;
+    }
+    .topbar{
+      display:flex;
+      align-items:flex-end;
+      justify-content:space-between;
+      gap:12px;
+      margin-bottom:18px;
+    }
+    h1{font-size:28px;line-height:1.1;margin:0}
+    h2,h3{margin:0}
+    .muted{color:var(--muted)}
+    .small{font-size:14px}
+    .panel{
+      background:rgba(17,24,39,.94);
+      border:1px solid var(--border);
+      border-radius:18px;
+      padding:16px;
+      box-shadow:var(--shadow);
+      margin-bottom:16px;
+    }
+    .row{
+      display:flex;
+      gap:10px;
+      align-items:center;
+      flex-wrap:wrap;
+    }
+    .stack{display:grid;gap:12px}
+    label{font-weight:650}
+    input{
+      width:100%;
+      min-height:48px;
+      border:1px solid var(--border);
+      background:#0f172a;
+      color:var(--text);
+      border-radius:12px;
+      padding:10px 12px;
+      font-size:16px;
+      outline:none;
+    }
+    input:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(34,197,94,.15)}
+    .btn{
+      border:1px solid var(--border);
+      background:#162033;
+      color:var(--text);
+      border-radius:12px;
+      min-height:46px;
+      padding:10px 14px;
+      font-weight:700;
+    }
+    .btn.primary{
+      background:var(--accent);
+      color:#052e16;
+      border-color:transparent;
+    }
+    .btn.primary:hover{background:var(--accent-dark);color:white}
+    .btn.danger{border-color:#7f1d1d;background:#3f1519}
+    .btn.full{width:100%}
+    .player-row{
+      display:grid;
+      grid-template-columns:1fr auto;
+      gap:8px;
+    }
+    .score-grid{
+      display:grid;
+      grid-template-columns:repeat(2,minmax(0,1fr));
+      gap:10px;
+      margin-top:12px;
+    }
+    @media(min-width:620px){.score-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
+    .score-card{
+      background:var(--card);
+      border:1px solid var(--border);
+      border-radius:16px;
+      padding:14px;
+      min-width:0;
+    }
+    .score-name{
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+      color:var(--muted);
+      font-size:14px;
+    }
+    .score-total{
+      font-size:34px;
+      font-weight:800;
+      margin-top:3px;
+    }
+    .entry-row{
+      display:grid;
+      grid-template-columns:minmax(0,1fr) 110px;
+      gap:10px;
+      align-items:center;
+    }
+    .entry-row input{text-align:right}
+    .status{
+      border-left:4px solid var(--accent);
+      background:#10271b;
+    }
+    .status.tie{border-left-color:var(--warn);background:#2a1d08}
+    .table-wrap{
+      overflow-x:auto;
+      border:1px solid var(--border);
+      border-radius:14px;
+      margin-top:10px;
+    }
+    table{width:100%;border-collapse:collapse;min-width:520px}
+    th,td{padding:10px 9px;border-top:1px solid var(--border);text-align:right}
+    th:first-child,td:first-child{text-align:left}
+    thead th{border-top:0;background:#162033;color:var(--muted);font-size:13px}
+    .score-edit{
+      border:1px solid transparent;
+      background:transparent;
+      color:var(--text);
+      min-width:48px;
+      min-height:40px;
+      border-radius:9px;
+      font-weight:750;
+    }
+    .score-edit:hover,.score-edit:focus{border-color:var(--border);background:var(--card-2);outline:none}
+    .hidden{display:none!important}
+    .error{color:#fecaca;font-size:14px;margin:0}
+    .spacer{height:2px}
+    dialog{
+      border:1px solid var(--border);
+      background:var(--panel);
+      color:var(--text);
+      border-radius:18px;
+      padding:0;
+      width:min(92vw,380px);
+      box-shadow:0 30px 70px rgba(0,0,0,.55);
+    }
+    dialog::backdrop{background:rgba(0,0,0,.65)}
+    .dialog-body{padding:18px}
+    .dialog-actions{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px}
+    .subhead{
+      display:flex;
+      justify-content:space-between;
+      align-items:end;
+      gap:12px;
+      flex-wrap:wrap;
+    }
+    .pill{
+      display:inline-block;
+      padding:5px 9px;
+      background:#162033;
+      border:1px solid var(--border);
+      border-radius:999px;
+      color:var(--muted);
+      font-size:13px;
+    }
+  </style>
+</head>
+<body>
+  <main class="app">
+    <div class="topbar">
+      <div>
+        <div class="small muted">Card game scorekeeper</div>
+        <h1>Flip 7</h1>
+      </div>
+      <div id="gameBadge" class="pill hidden">Game in progress</div>
+    </div>
+
+    <section id="setupView">
+      <div class="panel stack">
+        <div>
+          <h2>New game</h2>
+          <p class="muted small">Add players and choose the target score.</p>
+        </div>
+
+        <div>
+          <label for="targetScore">Target score</label>
+          <input id="targetScore" type="number" inputmode="numeric" min="1" max="9999" value="200">
+        </div>
+
+        <div>
+          <div class="subhead">
+            <label>Players</label>
+            <span id="playerCount" class="muted small">3 players</span>
+          </div>
+          <div id="playerInputs" class="stack" style="margin-top:8px"></div>
+          <button id="addPlayerBtn" class="btn" type="button" style="margin-top:10px">+ Add player</button>
+        </div>
+
+        <p id="setupError" class="error hidden"></p>
+        <button id="startBtn" class="btn primary full" type="button">Start game</button>
+      </div>
+    </section>
+
+    <section id="gameView" class="hidden">
+      <div class="subhead" style="margin-bottom:10px">
+        <div>
+          <div class="small muted">Round <span id="roundNumber">1</span></div>
+          <h2>Scoreboard</h2>
+        </div>
+        <div class="pill">First to <strong id="targetDisplay">200</strong></div>
+      </div>
+
+      <div id="statusBanner" class="panel status hidden" aria-live="polite"></div>
+      <div id="scoreboard" class="score-grid"></div>
+
+      <div class="panel" style="margin-top:16px">
+        <h3>Enter round scores</h3>
+        <p class="muted small">Enter each player’s score for this round. Blank entries count as 0.</p>
+        <form id="roundForm" class="stack">
+          <div id="roundInputs" class="stack"></div>
+          <p id="roundError" class="error hidden"></p>
+          <button class="btn primary full" type="submit">Add round</button>
+        </form>
+      </div>
+
+      <div id="historySection" class="panel hidden">
+        <div class="subhead">
+          <div>
+            <h3>Round history</h3>
+            <div class="muted small">Tap any old score to edit it. Totals update automatically.</div>
+          </div>
+          <button id="undoBtn" class="btn" type="button">Undo last round</button>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead id="historyHead"></thead>
+            <tbody id="historyBody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="row">
+        <button id="newGameBtn" class="btn danger" type="button">New game</button>
+      </div>
+    </section>
+  </main>
+
+  <dialog id="editDialog">
+    <form id="editForm" class="dialog-body">
+      <h3>Edit score</h3>
+      <p id="editLabel" class="muted small"></p>
+      <label for="editScoreInput">Score</label>
+      <input id="editScoreInput" type="number" inputmode="numeric" min="0" max="999">
+      <p id="editError" class="error hidden" style="margin-top:8px"></p>
+      <div class="dialog-actions">
+        <button id="cancelEditBtn" class="btn" type="button">Cancel</button>
+        <button class="btn primary" type="submit">Save</button>
+      </div>
+    </form>
+  </dialog>
+
+  <script>
+    (() => {
+      const qs = s => document.querySelector(s);
+      const setupView = qs('#setupView');
+      const gameView = qs('#gameView');
+      const gameBadge = qs('#gameBadge');
+      const playerInputs = qs('#playerInputs');
+      const playerCount = qs('#playerCount');
+      const targetScore = qs('#targetScore');
+      const setupError = qs('#setupError');
+      const scoreboard = qs('#scoreboard');
+      const roundInputs = qs('#roundInputs');
+      const roundForm = qs('#roundForm');
+      const roundError = qs('#roundError');
+      const roundNumber = qs('#roundNumber');
+      const targetDisplay = qs('#targetDisplay');
+      const statusBanner = qs('#statusBanner');
+      const historySection = qs('#historySection');
+      const historyHead = qs('#historyHead');
+      const historyBody = qs('#historyBody');
+      const editDialog = qs('#editDialog');
+      const editForm = qs('#editForm');
+      const editLabel = qs('#editLabel');
+      const editScoreInput = qs('#editScoreInput');
+      const editError = qs('#editError');
+
+      let setupNames = ['Player 1', 'Player 2', 'Player 3'];
+      let players = [];
+      let rounds = [];
+      let target = 200;
+      let editingRound = null;
+      let editingPlayer = null;
+
+      const STORAGE_KEY = 'flip7-scorekeeper-v1';
+
+      function esc(s){
+        return String(s).replace(/[&<>"']/g, c => ({
+          '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
+        }[c]));
+      }
+
+      function showError(el, message){
+        el.textContent = message || '';
+        el.classList.toggle('hidden', !message);
+      }
+
+      function saveState(){
+        try{
+          localStorage.setItem(STORAGE_KEY, JSON.stringify({
+            setupNames, players, rounds, target,
+            inGame: !gameView.classList.contains('hidden')
+          }));
+        }catch(e){}
+      }
+
+      function loadState(){
+        try{
+          const raw = localStorage.getItem(STORAGE_KEY);
+          if(!raw) return false;
+          const data = JSON.parse(raw);
+          if(Array.isArray(data.setupNames)) setupNames = data.setupNames;
+          if(Array.isArray(data.players)) players = data.players;
+          if(Array.isArray(data.rounds)) rounds = data.rounds;
+          if(Number.isFinite(data.target)) target = data.target;
+          targetScore.value = String(target);
+          if(data.inGame && players.length >= 2){
+            setupView.classList.add('hidden');
+            gameView.classList.remove('hidden');
+            gameBadge.classList.remove('hidden');
+            renderGame();
+            return true;
+          }
+        }catch(e){}
+        return false;
+      }
+
+      function renderSetupPlayers(){
+        playerInputs.innerHTML = '';
+        setupNames.forEach((name,index)=>{
+          const row = document.createElement('div');
+          row.className = 'player-row';
+          row.innerHTML = `
+            <input type="text" maxlength="24" aria-label="Player ${index+1} name" value="${esc(name)}">
+            ${setupNames.length > 2 ? `<button class="btn" type="button" data-remove="${index}" aria-label="Remove player">×</button>` : ''}
+          `;
+          const input = row.querySelector('input');
+          input.addEventListener('input',()=>{
+            setupNames[index] = input.value;
+            saveState();
+          });
+          const remove = row.querySelector('[data-remove]');
+          if(remove) remove.addEventListener('click',()=>{
+            setupNames.splice(index,1);
+            renderSetupPlayers();
+            saveState();
+          });
+          playerInputs.appendChild(row);
+        });
+        playerCount.textContent = `${setupNames.length} players`;
+      }
+
+      function totals(){
+        return players.map((_,i)=>rounds.reduce((sum,r)=>sum+(Number(r[i])||0),0));
+      }
+
+      function gameState(){
+        const t = totals();
+        const max = t.length ? Math.max(...t) : 0;
+        const leaders = t.map((v,i)=>({v,i})).filter(x=>x.v===max);
+        if(max >= target && leaders.length === 1) return {winner:leaders[0].i,tie:false};
+        if(max >= target && leaders.length > 1) return {winner:null,tie:true};
+        return {winner:null,tie:false};
+      }
+
+      function renderGame(){
+        const t = totals();
+        const state = gameState();
+        roundNumber.textContent = rounds.length + 1;
+        targetDisplay.textContent = target;
+
+        scoreboard.innerHTML = '';
+        players.forEach((p,i)=>{
+          const card = document.createElement('div');
+          card.className = 'score-card';
+          card.innerHTML = `<div class="score-name">${esc(p.name)}</div><div class="score-total">${t[i]}</div>`;
+          scoreboard.appendChild(card);
+        });
+
+        roundInputs.innerHTML = '';
+        players.forEach((p,i)=>{
+          const row = document.createElement('label');
+          row.className = 'entry-row';
+          row.innerHTML = `<span>${esc(p.name)}</span><input data-score-index="${i}" type="number" inputmode="numeric" min="0" max="999" placeholder="0" aria-label="${esc(p.name)} round score">`;
+          roundInputs.appendChild(row);
+        });
+
+        if(state.winner !== null){
+          statusBanner.className = 'panel status';
+          statusBanner.innerHTML = `<div class="small muted">Winner</div><strong>${esc(players[state.winner].name)} — ${t[state.winner]} points</strong>`;
+        }else if(state.tie){
+          const max = Math.max(...t);
+          const tied = players.filter((_,i)=>t[i]===max).map(p=>p.name).join(' and ');
+          statusBanner.className = 'panel status tie';
+          statusBanner.innerHTML = `<strong>Tie at ${max}</strong><div class="small muted">${esc(tied)} are tied. Keep playing until one player leads.</div>`;
+        }else if(rounds.length){
+          const max = Math.max(...t);
+          const leaders = players.filter((_,i)=>t[i]===max).map(p=>p.name).join(', ');
+          statusBanner.className = 'panel status';
+          statusBanner.innerHTML = `<div class="small muted">Current leader${leaders.includes(',') ? 's' : ''}</div><strong>${esc(leaders)} — ${max}</strong>`;
+        }else{
+          statusBanner.className = 'panel status hidden';
+          statusBanner.innerHTML = '';
+        }
+
+        renderHistory();
+        saveState();
+      }
+
+      function renderHistory(){
+        if(!rounds.length){
+          historySection.classList.add('hidden');
+          return;
+        }
+        historySection.classList.remove('hidden');
+        historyHead.innerHTML = `<tr><th>Round</th>${players.map(p=>`<th>${esc(p.name)}</th>`).join('')}</tr>`;
+        historyBody.innerHTML = rounds.map((scores,ri)=>`
+          <tr>
+            <td>${ri+1}</td>
+            ${scores.map((score,pi)=>`<td><button class="score-edit" type="button" data-r="${ri}" data-p="${pi}">${score}</button></td>`).join('')}
+          </tr>
+        `).join('');
+
+        historyBody.querySelectorAll('.score-edit').forEach(btn=>{
+          btn.addEventListener('click',()=>{
+            editingRound = Number(btn.dataset.r);
+            editingPlayer = Number(btn.dataset.p);
+            editLabel.textContent = `${players[editingPlayer].name} — Round ${editingRound+1}`;
+            editScoreInput.value = rounds[editingRound][editingPlayer];
+            showError(editError,'');
+            editDialog.showModal();
+            setTimeout(()=>editScoreInput.select(),0);
+          });
+        });
+      }
+
+      qs('#addPlayerBtn').addEventListener('click',()=>{
+        if(setupNames.length >= 12){
+          showError(setupError,'Maximum 12 players.');
+          return;
+        }
+        setupNames.push(`Player ${setupNames.length+1}`);
+        renderSetupPlayers();
+        saveState();
+      });
+
+      qs('#startBtn').addEventListener('click',()=>{
+        const cleaned = setupNames.map(n=>n.trim());
+        const parsedTarget = Number.parseInt(targetScore.value,10);
+
+        if(cleaned.length < 2) return showError(setupError,'Add at least 2 players.');
+        if(cleaned.some(n=>!n)) return showError(setupError,'Every player needs a name.');
+        if(new Set(cleaned.map(n=>n.toLowerCase())).size !== cleaned.length) return showError(setupError,'Player names must be different.');
+        if(!Number.isFinite(parsedTarget) || parsedTarget < 1 || parsedTarget > 9999) return showError(setupError,'Target score must be between 1 and 9,999.');
+
+        players = cleaned.map(name=>({name}));
+        rounds = [];
+        target = parsedTarget;
+        setupView.classList.add('hidden');
+        gameView.classList.remove('hidden');
+        gameBadge.classList.remove('hidden');
+        showError(setupError,'');
+        renderGame();
+      });
+
+      roundForm.addEventListener('submit',e=>{
+        e.preventDefault();
+        const inputs = [...roundInputs.querySelectorAll('input[data-score-index]')];
+        const values = inputs.map(input=>input.value.trim()==='' ? 0 : Number.parseInt(input.value,10));
+        if(values.some(v=>!Number.isFinite(v) || v < 0 || v > 999)){
+          showError(roundError,'Scores must be whole numbers from 0 to 999.');
+          return;
+        }
+        rounds.push(values);
+        showError(roundError,'');
+        renderGame();
+        const first = roundInputs.querySelector('input');
+        if(first) first.focus();
+      });
+
+      editForm.addEventListener('submit',e=>{
+        e.preventDefault();
+        const value = Number.parseInt(editScoreInput.value,10);
+        if(!Number.isFinite(value) || value < 0 || value > 999){
+          showError(editError,'Score must be a whole number from 0 to 999.');
+          return;
+        }
+        rounds[editingRound][editingPlayer] = value;
+        editDialog.close();
+        editingRound = editingPlayer = null;
+        renderGame();
+      });
+
+      qs('#cancelEditBtn').addEventListener('click',()=>{
+        editDialog.close();
+        editingRound = editingPlayer = null;
+      });
+
+      qs('#undoBtn').addEventListener('click',()=>{
+        if(!rounds.length) return;
+        rounds.pop();
+        renderGame();
+      });
+
+      qs('#newGameBtn').addEventListener('click',()=>{
+        if(!confirm('Start a new game? This clears the current scores.')) return;
+        players = [];
+        rounds = [];
+        setupView.classList.remove('hidden');
+        gameView.classList.add('hidden');
+        gameBadge.classList.add('hidden');
+        renderSetupPlayers();
+        saveState();
+      });
+
+      targetScore.addEventListener('input',saveState);
+
+      renderSetupPlayers();
+      loadState();
+    })();
+  </script>
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => navigator.serviceWorker.register('./service-worker.js').catch(() => {}));
+    }
+  </script>
+</body>
+</html>
