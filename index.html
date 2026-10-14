@@ -13,41 +13,26 @@
   <title>Flip 7 Scorekeeper</title>
   <style>
     :root{
-      --bg:#0f172a;
-      --panel:#111827;
-      --card:#1f2937;
-      --card-2:#243244;
-      --text:#f8fafc;
-      --muted:#94a3b8;
-      --border:#334155;
-      --accent:#22c55e;
-      --accent-dark:#16a34a;
-      --danger:#ef4444;
-      --warn:#f59e0b;
-      --shadow:0 8px 24px rgba(0,0,0,.22);
+      --bg:#0f172a; --panel:#111827; --card:#1f2937; --card-2:#243244;
+      --text:#f8fafc; --muted:#94a3b8; --border:#334155;
+      --accent:#22c55e; --accent-dark:#16a34a; --danger:#ef4444;
+      --warn:#f59e0b; --shadow:0 8px 24px rgba(0,0,0,.22);
     }
     *{box-sizing:border-box}
+    html{background:#0b1220}
     body{
       margin:0;
       font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
       background:linear-gradient(180deg,#0b1220,#111827);
       color:var(--text);
       min-height:100vh;
+      padding-top:env(safe-area-inset-top);
+      padding-bottom:env(safe-area-inset-bottom);
     }
     button,input{font:inherit}
     button{cursor:pointer}
-    .app{
-      width:min(760px,100%);
-      margin:0 auto;
-      padding:20px 16px 40px;
-    }
-    .topbar{
-      display:flex;
-      align-items:flex-end;
-      justify-content:space-between;
-      gap:12px;
-      margin-bottom:18px;
-    }
+    .app{width:min(760px,100%);margin:0 auto;padding:20px 16px 40px}
+    .topbar{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;margin-bottom:18px}
     h1{font-size:28px;line-height:1.1;margin:0}
     h2,h3{margin:0}
     .muted{color:var(--muted)}
@@ -60,137 +45,87 @@
       box-shadow:var(--shadow);
       margin-bottom:16px;
     }
-    .row{
-      display:flex;
-      gap:10px;
-      align-items:center;
-      flex-wrap:wrap;
-    }
+    .row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
     .stack{display:grid;gap:12px}
     label{font-weight:650}
     input{
-      width:100%;
-      min-height:48px;
-      border:1px solid var(--border);
-      background:#0f172a;
-      color:var(--text);
-      border-radius:12px;
-      padding:10px 12px;
-      font-size:16px;
-      outline:none;
+      width:100%; min-height:48px; border:1px solid var(--border);
+      background:#0f172a; color:var(--text); border-radius:12px;
+      padding:10px 12px; font-size:16px; outline:none;
     }
     input:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(34,197,94,.15)}
     .btn{
-      border:1px solid var(--border);
-      background:#162033;
-      color:var(--text);
-      border-radius:12px;
-      min-height:46px;
-      padding:10px 14px;
-      font-weight:700;
+      border:1px solid var(--border); background:#162033; color:var(--text);
+      border-radius:12px; min-height:46px; padding:10px 14px; font-weight:700;
     }
-    .btn.primary{
-      background:var(--accent);
-      color:#052e16;
-      border-color:transparent;
-    }
+    .btn.primary{background:var(--accent);color:#052e16;border-color:transparent}
     .btn.primary:hover{background:var(--accent-dark);color:white}
     .btn.danger{border-color:#7f1d1d;background:#3f1519}
     .btn.full{width:100%}
-    .player-row{
-      display:grid;
-      grid-template-columns:1fr auto;
-      gap:8px;
-    }
-    .score-grid{
-      display:grid;
-      grid-template-columns:repeat(2,minmax(0,1fr));
-      gap:10px;
-      margin-top:12px;
-    }
+    .player-row{display:grid;grid-template-columns:1fr auto;gap:8px}
+    .score-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:12px}
     @media(min-width:620px){.score-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
     .score-card{
-      background:var(--card);
-      border:1px solid var(--border);
-      border-radius:16px;
-      padding:14px;
-      min-width:0;
+      background:var(--card); border:1px solid var(--border);
+      border-radius:16px; padding:14px; min-width:0;
     }
-    .score-name{
-      white-space:nowrap;
-      overflow:hidden;
-      text-overflow:ellipsis;
-      color:var(--muted);
-      font-size:14px;
+    .score-name-btn{
+      width:100%; text-align:left; padding:0; border:0; background:transparent;
+      color:var(--muted); font-size:14px; font-weight:700;
+      white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+      min-height:30px;
     }
-    .score-total{
-      font-size:34px;
-      font-weight:800;
-      margin-top:3px;
+    .score-name-btn:hover,.score-name-btn:focus{color:var(--text);outline:none;text-decoration:underline}
+    .score-total{font-size:34px;font-weight:800;margin-top:3px}
+    .entry-row{display:grid;grid-template-columns:minmax(0,1fr) 110px;gap:10px;align-items:center}
+    .entry-name{
+      border:0; background:transparent; color:var(--text); padding:0;
+      text-align:left; font-weight:700; min-height:44px;
     }
-    .entry-row{
-      display:grid;
-      grid-template-columns:minmax(0,1fr) 110px;
-      gap:10px;
-      align-items:center;
-    }
+    .entry-name:hover,.entry-name:focus{text-decoration:underline;outline:none}
     .entry-row input{text-align:right}
-    .status{
-      border-left:4px solid var(--accent);
-      background:#10271b;
-    }
+    .status{border-left:4px solid var(--accent);background:#10271b}
     .status.tie{border-left-color:var(--warn);background:#2a1d08}
-    .table-wrap{
-      overflow-x:auto;
-      border:1px solid var(--border);
-      border-radius:14px;
-      margin-top:10px;
-    }
+    .table-wrap{overflow-x:auto;border:1px solid var(--border);border-radius:14px;margin-top:10px}
     table{width:100%;border-collapse:collapse;min-width:520px}
     th,td{padding:10px 9px;border-top:1px solid var(--border);text-align:right}
     th:first-child,td:first-child{text-align:left}
     thead th{border-top:0;background:#162033;color:var(--muted);font-size:13px}
     .score-edit{
-      border:1px solid transparent;
-      background:transparent;
-      color:var(--text);
-      min-width:48px;
-      min-height:40px;
-      border-radius:9px;
-      font-weight:750;
+      border:1px solid transparent; background:transparent; color:var(--text);
+      min-width:48px; min-height:40px; border-radius:9px; font-weight:750;
     }
     .score-edit:hover,.score-edit:focus{border-color:var(--border);background:var(--card-2);outline:none}
     .hidden{display:none!important}
     .error{color:#fecaca;font-size:14px;margin:0}
-    .spacer{height:2px}
     dialog{
-      border:1px solid var(--border);
-      background:var(--panel);
-      color:var(--text);
-      border-radius:18px;
-      padding:0;
-      width:min(92vw,380px);
+      border:1px solid var(--border); background:var(--panel); color:var(--text);
+      border-radius:18px; padding:0; width:min(92vw,420px);
       box-shadow:0 30px 70px rgba(0,0,0,.55);
     }
     dialog::backdrop{background:rgba(0,0,0,.65)}
     .dialog-body{padding:18px}
     .dialog-actions{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px}
-    .subhead{
-      display:flex;
-      justify-content:space-between;
-      align-items:end;
-      gap:12px;
-      flex-wrap:wrap;
-    }
+    .subhead{display:flex;justify-content:space-between;align-items:end;gap:12px;flex-wrap:wrap}
     .pill{
-      display:inline-block;
-      padding:5px 9px;
-      background:#162033;
-      border:1px solid var(--border);
-      border-radius:999px;
-      color:var(--muted);
-      font-size:13px;
+      display:inline-block; padding:5px 9px; background:#162033; border:1px solid var(--border);
+      border-radius:999px; color:var(--muted); font-size:13px;
     }
+    .quick-total{
+      display:flex; justify-content:space-between; align-items:center;
+      background:#0f172a; border:1px solid var(--border); border-radius:14px;
+      padding:12px 14px; margin:12px 0;
+    }
+    .quick-total strong{font-size:28px}
+    .quick-grid{
+      display:grid; grid-template-columns:repeat(4,1fr); gap:8px;
+    }
+    .quick-btn{
+      min-height:52px; border-radius:12px; border:1px solid var(--border);
+      background:#1f2937; color:var(--text); font-weight:800; font-size:17px;
+    }
+    .quick-btn:active{transform:scale(.97)}
+    .quick-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}
   </style>
 </head>
 <body>
@@ -209,12 +144,10 @@
           <h2>New game</h2>
           <p class="muted small">Add players and choose the target score.</p>
         </div>
-
         <div>
           <label for="targetScore">Target score</label>
           <input id="targetScore" type="number" inputmode="numeric" min="1" max="9999" value="200">
         </div>
-
         <div>
           <div class="subhead">
             <label>Players</label>
@@ -223,7 +156,6 @@
           <div id="playerInputs" class="stack" style="margin-top:8px"></div>
           <button id="addPlayerBtn" class="btn" type="button" style="margin-top:10px">+ Add player</button>
         </div>
-
         <p id="setupError" class="error hidden"></p>
         <button id="startBtn" class="btn primary full" type="button">Start game</button>
       </div>
@@ -243,7 +175,7 @@
 
       <div class="panel" style="margin-top:16px">
         <h3>Enter round scores</h3>
-        <p class="muted small">Enter each player’s score for this round. Blank entries count as 0.</p>
+        <p class="muted small">Tap a player name for quick +1 to +12 card entry, or type the round score manually.</p>
         <form id="roundForm" class="stack">
           <div id="roundInputs" class="stack"></div>
           <p id="roundError" class="error hidden"></p>
@@ -272,6 +204,23 @@
       </div>
     </section>
   </main>
+
+  <dialog id="quickDialog">
+    <div class="dialog-body">
+      <h3 id="quickTitle">Add cards</h3>
+      <p class="muted small">Tap each card value as you count the hand.</p>
+      <div class="quick-total">
+        <span>Current round</span>
+        <strong id="quickTotal">0</strong>
+      </div>
+      <div id="quickGrid" class="quick-grid"></div>
+      <div class="quick-actions">
+        <button id="quickUndo" class="btn" type="button">Undo last</button>
+        <button id="quickClear" class="btn" type="button">Clear</button>
+      </div>
+      <button id="quickDone" class="btn primary full" type="button" style="margin-top:10px">Done</button>
+    </div>
+  </dialog>
 
   <dialog id="editDialog">
     <form id="editForm" class="dialog-body">
@@ -312,6 +261,10 @@
       const editLabel = qs('#editLabel');
       const editScoreInput = qs('#editScoreInput');
       const editError = qs('#editError');
+      const quickDialog = qs('#quickDialog');
+      const quickTitle = qs('#quickTitle');
+      const quickTotal = qs('#quickTotal');
+      const quickGrid = qs('#quickGrid');
 
       let setupNames = ['Player 1', 'Player 2', 'Player 3'];
       let players = [];
@@ -319,6 +272,8 @@
       let target = 200;
       let editingRound = null;
       let editingPlayer = null;
+      let quickPlayer = null;
+      let quickHistory = [];
 
       const STORAGE_KEY = 'flip7-scorekeeper-v1';
 
@@ -392,6 +347,31 @@
         return players.map((_,i)=>rounds.reduce((sum,r)=>sum+(Number(r[i])||0),0));
       }
 
+      function getRoundInput(index){
+        return roundInputs.querySelector(`input[data-score-index="${index}"]`);
+      }
+
+      function openQuickAdd(index){
+        quickPlayer = index;
+        quickHistory = [];
+        const input = getRoundInput(index);
+        quickTitle.textContent = players[index].name;
+        quickTotal.textContent = input && input.value !== '' ? input.value : '0';
+        if(typeof quickDialog.showModal === 'function') quickDialog.showModal();
+      }
+
+      function addQuickValue(value){
+        if(quickPlayer === null) return;
+        const input = getRoundInput(quickPlayer);
+        if(!input) return;
+        const current = input.value.trim() === '' ? 0 : Number.parseInt(input.value,10);
+        const safeCurrent = Number.isFinite(current) ? current : 0;
+        const next = Math.min(999, safeCurrent + value);
+        quickHistory.push(safeCurrent);
+        input.value = String(next);
+        quickTotal.textContent = String(next);
+      }
+
       function gameState(){
         const t = totals();
         const max = t.length ? Math.max(...t) : 0;
@@ -411,16 +391,24 @@
         players.forEach((p,i)=>{
           const card = document.createElement('div');
           card.className = 'score-card';
-          card.innerHTML = `<div class="score-name">${esc(p.name)}</div><div class="score-total">${t[i]}</div>`;
+          card.innerHTML = `
+            <button type="button" class="score-name-btn" data-quick-player="${i}" aria-label="Quick add cards for ${esc(p.name)}">${esc(p.name)}</button>
+            <div class="score-total">${t[i]}</div>`;
           scoreboard.appendChild(card);
         });
 
         roundInputs.innerHTML = '';
         players.forEach((p,i)=>{
-          const row = document.createElement('label');
+          const row = document.createElement('div');
           row.className = 'entry-row';
-          row.innerHTML = `<span>${esc(p.name)}</span><input data-score-index="${i}" type="number" inputmode="numeric" min="0" max="999" placeholder="0" aria-label="${esc(p.name)} round score">`;
+          row.innerHTML = `
+            <button type="button" class="entry-name" data-quick-player="${i}" aria-label="Quick add cards for ${esc(p.name)}">${esc(p.name)}</button>
+            <input data-score-index="${i}" type="number" inputmode="numeric" min="0" max="999" placeholder="0" aria-label="${esc(p.name)} round score">`;
           roundInputs.appendChild(row);
+        });
+
+        document.querySelectorAll('[data-quick-player]').forEach(btn=>{
+          btn.addEventListener('click',()=>openQuickAdd(Number(btn.dataset.quickPlayer)));
         });
 
         if(state.winner !== null){
@@ -472,6 +460,38 @@
         });
       }
 
+      for(let n=1;n<=12;n++){
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'quick-btn';
+        btn.textContent = `+${n}`;
+        btn.addEventListener('click',()=>addQuickValue(n));
+        quickGrid.appendChild(btn);
+      }
+
+      qs('#quickUndo').addEventListener('click',()=>{
+        if(quickPlayer === null || !quickHistory.length) return;
+        const input = getRoundInput(quickPlayer);
+        const previous = quickHistory.pop();
+        input.value = String(previous);
+        quickTotal.textContent = String(previous);
+      });
+
+      qs('#quickClear').addEventListener('click',()=>{
+        if(quickPlayer === null) return;
+        const input = getRoundInput(quickPlayer);
+        const current = input.value.trim() === '' ? 0 : Number.parseInt(input.value,10);
+        quickHistory.push(Number.isFinite(current) ? current : 0);
+        input.value = '0';
+        quickTotal.textContent = '0';
+      });
+
+      qs('#quickDone').addEventListener('click',()=>{
+        quickDialog.close();
+        quickPlayer = null;
+        quickHistory = [];
+      });
+
       qs('#addPlayerBtn').addEventListener('click',()=>{
         if(setupNames.length >= 12){
           showError(setupError,'Maximum 12 players.');
@@ -485,12 +505,10 @@
       qs('#startBtn').addEventListener('click',()=>{
         const cleaned = setupNames.map(n=>n.trim());
         const parsedTarget = Number.parseInt(targetScore.value,10);
-
         if(cleaned.length < 2) return showError(setupError,'Add at least 2 players.');
         if(cleaned.some(n=>!n)) return showError(setupError,'Every player needs a name.');
         if(new Set(cleaned.map(n=>n.toLowerCase())).size !== cleaned.length) return showError(setupError,'Player names must be different.');
         if(!Number.isFinite(parsedTarget) || parsedTarget < 1 || parsedTarget > 9999) return showError(setupError,'Target score must be between 1 and 9,999.');
-
         players = cleaned.map(name=>({name}));
         rounds = [];
         target = parsedTarget;
@@ -555,12 +573,13 @@
 
       renderSetupPlayers();
       loadState();
+
+      if('serviceWorker' in navigator){
+        window.addEventListener('load',()=>{
+          navigator.serviceWorker.register('./service-worker.js').catch(()=>{});
+        });
+      }
     })();
-  </script>
-  <script>
-    if ('serviceWorker' in navigator) {
-      window.addEventListener('load', () => navigator.serviceWorker.register('./service-worker.js').catch(() => {}));
-    }
   </script>
 </body>
 </html>

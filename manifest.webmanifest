@@ -1,7 +1,7 @@
 {
   "name": "Flip 7 Scorekeeper",
   "short_name": "Flip 7",
-  "description": "Offline Flip 7 scorekeeper",
+  "description": "A simple offline scorekeeper for Flip 7.",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
