@@ -179,7 +179,7 @@
         <form id="roundForm" class="stack">
           <div id="roundInputs" class="stack"></div>
           <p id="roundError" class="error hidden"></p>
-          <button class="btn primary full" type="submit">Add round</button>
+          <button id="addRoundBtn" class="btn primary full" type="button">Add round</button>
         </form>
       </div>
 
@@ -519,17 +519,27 @@
         renderGame();
       });
 
-      roundForm.addEventListener('submit',e=>{
-        e.preventDefault();
+      qs('#addRoundBtn').addEventListener('click',()=>{
         const inputs = [...roundInputs.querySelectorAll('input[data-score-index]')];
         const values = inputs.map(input=>input.value.trim()==='' ? 0 : Number.parseInt(input.value,10));
         if(values.some(v=>!Number.isFinite(v) || v < 0 || v > 999)){
           showError(roundError,'Scores must be whole numbers from 0 to 999.');
           return;
         }
+
+        if(document.activeElement && typeof document.activeElement.blur === 'function'){
+          document.activeElement.blur();
+        }
+
         rounds.push(values);
         showError(roundError,'');
         renderGame();
+
+        requestAnimationFrame(()=>{
+          if(document.activeElement && document.activeElement.matches('input, textarea, select')){
+            document.activeElement.blur();
+          }
+        });
       });
 
       editForm.addEventListener('submit',e=>{
